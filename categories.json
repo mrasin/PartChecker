@@ -1,0 +1,58 @@
+{
+"listOfCategories" : [ {
+"name" : "cat001",
+"points" : [
+"pt0001",
+"pt0002",
+"pt0003",
+"pt0004",
+"pt0005"],
+"minLimit" : -0.020,
+"maxLimit" : 0.020,
+"ifAverageToCheck" : false,
+"minAvg" : 0.0,
+"maxAvg" : 0.0
+} , {
+"name" : "cat002",
+"points" : [
+"pt0006",
+"pt0007",
+"pt0008",
+"pt0009",
+"pt0010"
+],
+"minLimit" : -0.035,
+"maxLimit" : 0.035,
+"ifAverageToCheck" : true,
+"minAvg" : -0.030,
+"maxAvg" : 0.030
+} , {
+"name" : "cat003",
+"points" : [
+"pt0011",
+"pt0012",
+"pt0013",
+"pt0014",
+"pt0015"
+],
+"minLimit" : 0.050,
+"maxLimit" : 1.000,
+"ifAverageToCheck" : false,
+"minAvg" : 0.000,
+"maxAvg" : 0.000
+} , {
+"name" : "cat004",
+"points" : [
+"pt0016",
+"pt0017",
+"pt0018",
+"pt0019",
+"pt0020"
+],
+"minLimit" : -0.045,
+"maxLimit" : 0.045,
+"ifAverageToCheck" : false,
+"minAvg" : -0.040,
+"maxAvg" : 0.040
+} ]
+}
