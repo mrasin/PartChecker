@@ -4,6 +4,7 @@ import model.TestPart;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.util.*;
 
 public class InitialOperations {
@@ -81,5 +82,13 @@ public class InitialOperations {
         }
         */
         return listOfTestParts;
+    }
+
+    public void writeDataToCsv (String csvString) throws Exception {
+
+        FileWriter writer = new FileWriter(new File("output.csv"));
+        writer.write(csvString);
+        writer.close();
+
     }
 }

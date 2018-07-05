@@ -11,9 +11,6 @@ public class TestPart {
     private Map<String, Double> partData;
 
     private String categoryToCheck;
-    //private Map<Map<String,List<Double>>,List<String>> limitValuesMap;
-    //key: map containing category and list of lower and upper limit,
-    //values: list of points
 
     public TestPart() {
     }

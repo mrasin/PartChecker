@@ -14,20 +14,37 @@ public class Menu {
         InitialOperations initialOperations = new InitialOperations();
         List<TestPart> listOfTestParts = initialOperations.readDataFromCsv();
 
+        CategoryList listOfCategories;
+
+        JsonRead jsonReader = new JsonRead();
+
+        try {
+            listOfCategories = jsonReader.readFromJson();
+        } catch (Exception e) {
+            System.out.println("Cannot read categories from JSON");
+            e.printStackTrace();
+            listOfCategories = new CategoryList();
+        }
+        //listOfCategories.show();
+
         Scanner scanner = new Scanner(System.in);
 
         String commands = "1 - Display imported data set\n" +
-                "2 - check reported parts (DEMO)\n" +
+                "2 - check reported parts\n" +
+                "3 - print out of the limit parts\n" +
                 "q - Exit the program";
 
         System.out.println("*Check Part System 1.0*");
-        System.out.println("What would you like to do? Please choose an option:\n" + commands);
+        System.out.println(commands);
+
+        Set<List> outOfLimitSet = new HashSet();
 
         String decision;
         do {
+                System.out.print("Please choose an option: ");
                 decision = scanner.nextLine();
                 switch (decision) {
-                case "1":
+                case "1": {
                     Map<String, Double> tmpDataMap = new HashMap<>();
 
                     for (int i = 0; i < listOfTestParts.size(); ++i) {
@@ -39,143 +56,117 @@ public class Menu {
                         }
                         System.out.println();
                     }
+                }
                     break;
 
-                case "2":
-                    JsonRead jsonReader = new JsonRead();
+                case "2": {
+                    String categoryToCheck;
+                    do {
+                        System.out.println();
+                        System.out.print("Category to check (or q - quit):");
+                        categoryToCheck = scanner.nextLine();
 
-                    CategoryList listOfCategories;
+                        boolean categoryFound = false;
+                        Category categoryData;
 
-                    try {
-                        listOfCategories = jsonReader.readFromJson();
-                    } catch (Exception e) {
-                        System.out.println("Cannot read JSON");
-                        e.printStackTrace();
-                        listOfCategories = new CategoryList();
-                    }
-                    listOfCategories.show();
+                        if(!categoryToCheck.equalsIgnoreCase("q")){
 
-                    System.out.println();
-                    System.out.print("Category to check: ");
-                    String categoryToCheck = scanner.nextLine();
+                            for (int i = 0; i < listOfCategories.getListOfCategories().size(); i++) {
+                                categoryData = listOfCategories.getListOfCategories().get(i);
 
-                    boolean categoryFound = false;
-                    Category categoryData;
-                    Set<String> outOfLimitSet = new HashSet();
+                                if (categoryToCheck.equalsIgnoreCase(categoryData.getName())) {
+                                    categoryFound = true;
 
-                    for (int i = 0; i < listOfCategories.getListOfCategories().size(); i++) {
-                        categoryData = listOfCategories.getListOfCategories().get(i);
+                                    for (int j = 0; j < listOfTestParts.size(); j++) {
+                                        TestPart testPart = listOfTestParts.get(j);
+                                        boolean outOfLimit = testPart.ifOutOfLimit(categoryData);
 
-                        if (categoryToCheck.equalsIgnoreCase(categoryData.getName())) {
-                            categoryFound = true;
-
-                            for (int j = 0; j < listOfTestParts.size(); j++) {
-                                TestPart testPart = listOfTestParts.get(j);
-                                boolean outOfLimit = testPart.ifOutOfLimit(categoryData);
-
-                                if (outOfLimit) {
-                                    outOfLimitSet.add(testPart.getName());
-                                }
-                            }
-                        }
-                    }
-                    System.out.println("\nParts out of the limit for " + categoryToCheck +":");
-                    for (String tmp : outOfLimitSet) {
-                        System.out.println(tmp);
-                    }
-
-
-
-                    /*
-                    String name = "cat001";
-                    Set<String> points = new HashSet<>();
-                    points.add("p1");
-                    points.add("p2");
-                    double minLimit = -0.01;
-                    double maxLimit = 0.01;
-                    boolean ifAverageToCheck = false;
-                    double minAvg = 0;
-                    double maxAvg = 0;
-
-
-                    Category category = new Category(name, points, minLimit, maxLimit, ifAverageToCheck, minAvg, maxAvg);
-                    System.out.println(category);
-
-                    ArrayList<Category> list = new ArrayList<>();
-                    list.add(category);
-
-                    CategoryList listOfCategories = new CategoryList(list); // = partChecker.readCategories(); //reading from JSON
-                    //listOfCategories.add(category);
-                    listOfCategories.show();
-
-                    try {
-                        jsonReader.writeToJson(listOfCategories);
-                    } catch (Exception e) {
-                        System.out.println("cannot write to JSON");
-                        e.printStackTrace();
-                    }
-                    */
-
-
-
-
-
-                    /*
-                    System.out.print("Choose category to be checked (q - quit): " );
-                    String categoryToCheck = scanner.nextLine();
-                    double lowerLimit;
-                    double upperLimit;
-                    boolean categoryFound = false;
-
-                    Category categoryData;
-                    Map<String, List<String>> outOfLimitMap = new HashMap<>();
-
-
-
-                    while (!categoryToCheck.equalsIgnoreCase("q") && !categoryFound){
-                        for (int i = 0; i < listOfCategories.getListOfCategories().size(); i++) {
-                            categoryData = listOfCategories.getListOfCategories().get(i);
-                            List<String> outOfLimitList = new ArrayList<>();
-
-                            if (categoryToCheck == categoryData.getName()) {
-                                categoryFound = true;
-                                Set<String> points = categoryData.getPoints();
-                                lowerLimit = categoryData.getMinLimit();
-                                upperLimit = categoryData.getMaxLimit();
-
-                                for (String tmpPoint : points) {
-
-                                    for (int j = 0; j <listOfTestParts.size() ; j++) {
-                                        TestPart currentPart = listOfTestParts.get(j);
-
-                                        Map<String, Double> currentPartData = currentPart.getPartData();
-                                        Set<String> keys = currentPartData.keySet();
-
-                                        for (String key : keys) {
-                                            if (key == tmpPoint){
-                                                Double measurement = currentPartData.get(key);
-                                                if (measurement < lowerLimit || measurement > upperLimit){
-                                                    outOfLimitList.add(currentPart.getName());
-                                                    break;
-                                                }
-                                            }
+                                        if (outOfLimit) {
+                                            List catAndPartName = new ArrayList();
+                                            catAndPartName.add(categoryData.getName());
+                                            catAndPartName.add(testPart.getName());
+                                            outOfLimitSet.add(catAndPartName);
                                         }
                                     }
                                 }
                             }
-                            outOfLimitMap.put(categoryData.getName(), outOfLimitList);
+                            System.out.println("\nParts out of the limit for " + categoryToCheck + ":");
+                            for (List tmp : outOfLimitSet) {
+                                if (tmp.get(0).equals(categoryToCheck)) {
+                                    System.out.println(tmp.get(1));
+                                }
 
+                            }
                         }
                     }
-                    if (!categoryFound) {
-                        System.out.println("Such a category does not exist!");
+
+                         while (!categoryToCheck.equalsIgnoreCase("q"));
                     }
-                    */
+
 
                     break;
 
-                case "q":
+                case "3": {
+                    for (List tmp : outOfLimitSet) {
+                        System.out.println(tmp);
+                    }
+
+                    System.out.println("Would you like to print out of limit parts to .csv file? (Y / N)");
+                    decision = scanner.nextLine();
+                    String csvString = "Part;Category;Point;Measurement\n";
+                    if (decision.equalsIgnoreCase("y")) {
+
+                        for (List tmp : outOfLimitSet) {
+                            String categoryName = tmp.get(0).toString();
+                            String partName = tmp.get(1).toString();
+
+                            boolean categoryFound = false;
+                            Category category = new Category();
+
+                            for (int i = 0; i < listOfCategories.getListOfCategories().size() && !categoryFound; ++i) {
+                                if (listOfCategories.getListOfCategories().get(i).getName().equals(categoryName)) {
+                                    category = listOfCategories.getListOfCategories().get(i);
+                                    categoryFound = true;
+                                }
+                            }
+
+                            Set points = category.getPoints();
+
+                            boolean partFound = false;
+                            for (int i = 0; i < listOfTestParts.size() && !partFound; ++i) {
+                                if (listOfTestParts.get(i).getName().equals(partName)) {
+                                    TestPart testPart = listOfTestParts.get(i);
+                                    Map<String, Double> partData = testPart.getPartData();
+
+                                    for (Object tmPoint : points) {
+                                        String tmPointString = tmPoint.toString();
+                                        Double tmpData = partData.get(tmPointString);
+
+                                        csvString += partName + ";" + categoryName + ";" + tmPointString + ";" + tmpData + "\n";
+
+
+                                    }
+                                    partFound = true;
+                                }
+                            }
+                        }
+                    }
+                    //System.out.println(csvString);
+                    try {
+                        initialOperations.writeDataToCsv(csvString);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("Cannot save to .csv file");
+                    }
+                }
+                    break;
+
+
+
+                case "q": {
                     System.out.println("Thank you for using *Check Part System 1.0*");
+                }
                     break;
 
                 default:

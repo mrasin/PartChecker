@@ -80,6 +80,8 @@ public class Category {
         this.maxAvg = maxAvg;
     }
 
+
+
     @Override
     public String toString() {
         return "Category{" +
