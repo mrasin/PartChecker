@@ -2,6 +2,7 @@ package controller;
 
 import files.JsonRead;
 import model.Category;
+import model.CategoryAndPart;
 import model.CategoryList;
 import model.TestPart;
 
@@ -37,7 +38,7 @@ public class Menu {
         System.out.println("*Check Part System 1.0*");
         System.out.println(commands);
 
-        Set<List> outOfLimitSet = new HashSet();
+        SortedSet<CategoryAndPart> outOfLimitSet = new TreeSet();
 
         String decision;
         do {
@@ -49,8 +50,10 @@ public class Menu {
 
                     for (int i = 0; i < listOfTestParts.size(); ++i) {
                         System.out.print(listOfTestParts.get(i).getName() + ": \t");
+
                         tmpDataMap = listOfTestParts.get(i).getPartData();
-                        Set keys = tmpDataMap.keySet();
+                        SortedSet<String> keys = new TreeSet<>(tmpDataMap.keySet()); //printing alphabetically according to points (keys)
+
                         for (Object key : keys) {
                             System.out.print(key + " = " + tmpDataMap.get(key) + "\n\t\t\t");
                         }
@@ -82,18 +85,23 @@ public class Menu {
                                         boolean outOfLimit = testPart.ifOutOfLimit(categoryData);
 
                                         if (outOfLimit) {
-                                            List catAndPartName = new ArrayList();
-                                            catAndPartName.add(categoryData.getName());
-                                            catAndPartName.add(testPart.getName());
-                                            outOfLimitSet.add(catAndPartName);
+                                            CategoryAndPart categoryAndPart = new CategoryAndPart();
+
+                                            //List catAndPartName = new ArrayList();
+                                            categoryAndPart.setCategory(categoryData.getName());
+                                            categoryAndPart.setPart(testPart.getName());
+                                            outOfLimitSet.add(categoryAndPart);
+                                            //catAndPartName.add(categoryData.getName());
+                                            //catAndPartName.add(testPart.getName());
+                                            //outOfLimitSet.add(catAndPartName);
                                         }
                                     }
                                 }
                             }
                             System.out.println("\nParts out of the limit for " + categoryToCheck + ":");
-                            for (List tmp : outOfLimitSet) {
-                                if (tmp.get(0).equals(categoryToCheck)) {
-                                    System.out.println(tmp.get(1));
+                            for (CategoryAndPart tmp : outOfLimitSet) {
+                                if (tmp.getCategory().equals(categoryToCheck)) {
+                                    System.out.println(tmp);
                                 }
 
                             }
@@ -107,18 +115,19 @@ public class Menu {
                     break;
 
                 case "3": {
-                    for (List tmp : outOfLimitSet) {
-                        System.out.println(tmp);
-                    }
+
+                    //for (CategoryAndPart tmp : outOfLimitSet) {
+                    //    System.out.println(tmp);
+                    //}
 
                     System.out.println("Would you like to print out of limit parts to .csv file? (Y / N)");
                     decision = scanner.nextLine();
-                    String csvString = "Part;Category;Point;Measurement\n";
+                    String csvString = "Category;Part;Point;Measurement\n";
                     if (decision.equalsIgnoreCase("y")) {
 
-                        for (List tmp : outOfLimitSet) {
-                            String categoryName = tmp.get(0).toString();
-                            String partName = tmp.get(1).toString();
+                        for (CategoryAndPart tmp : outOfLimitSet) {
+                            String categoryName = tmp.getCategory();
+                            String partName = tmp.getPart();
 
                             boolean categoryFound = false;
                             Category category = new Category();
@@ -130,7 +139,7 @@ public class Menu {
                                 }
                             }
 
-                            Set points = category.getPoints();
+                            SortedSet points = new TreeSet<>(category.getPoints()); //printing points alphabetically
 
                             boolean partFound = false;
                             for (int i = 0; i < listOfTestParts.size() && !partFound; ++i) {
@@ -142,7 +151,7 @@ public class Menu {
                                         String tmPointString = tmPoint.toString();
                                         Double tmpData = partData.get(tmPointString);
 
-                                        csvString += partName + ";" + categoryName + ";" + tmPointString + ";" + tmpData + "\n";
+                                        csvString += categoryName + ";" + partName + ";" + tmPointString + ";" + tmpData + "\n";
 
 
                                     }
